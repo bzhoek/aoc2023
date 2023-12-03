@@ -54,13 +54,13 @@ mod tests {
   fn test_word_finding() {
     let str = "threefour";
     let result = NUMBER_WORDS.iter().enumerate()
-      .find(|(index, word)| { str[0..word.len()].eq(**word) });
+      .find(|(_index, word)| { str[0..word.len()].eq(**word) });
     assert_eq!(Some((2usize, &"three")), result)
   }
 
   fn is_word<'a>(str: &str) -> Option<(usize, &'a &str)> {
     NUMBER_WORDS.iter().enumerate()
-      .find(|(index, word)| {
+      .find(|(_index, word)| {
         str.len() >= word.len() &&
           str[0..word.len()].eq(**word)
       })
@@ -71,7 +71,7 @@ mod tests {
       if char.is_numeric() {
         return char.to_digit(10);
       }
-      if let Some((index, number)) = is_word(&str[i..]) {
+      if let Some((index, _number)) = is_word(&str[i..]) {
         return Some((index + 1) as u32);
       }
     }
@@ -85,7 +85,7 @@ mod tests {
           return char.to_digit(10);
         }
       }
-      if let Some((index, number)) = is_word(&str[i..]) {
+      if let Some((index, _number)) = is_word(&str[i..]) {
         return Some((index + 1) as u32);
       }
     }
