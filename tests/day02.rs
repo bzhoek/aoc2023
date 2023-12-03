@@ -68,25 +68,41 @@ mod tests {
 
   #[test]
   fn it_solves_part1() {
+    let lines = parse_input();
+    assert_eq!(100, lines.len());
+
+    let possible: Vec<_> = lines.iter()
+      .filter(|(_index, (red, green, blue))|
+        { red <= &12u16 && green <= &13u16 && blue <= &14u16 }).collect();
+    assert_eq!(51, possible.len());
+
+    let sum: u16 = possible.iter()
+      .map(|(index, _)| index)
+      .sum();
+    assert_eq!(2593, sum);
+  }
+
+  fn parse_input() -> Vec<(u16, (u16, u16, u16))> {
     let input = include_str!("day02.input");
 
     let lines: Vec<_> = input.lines()
       .map(parse_line)
       .map(|(index, quantities)| { (index, max_colors(&quantities)) })
       .collect();
+    lines
+  }
 
+  #[test]
+  fn it_solves_part2() {
+    let lines = parse_input();
     assert_eq!(100, lines.len());
 
-    let possible: Vec<_> = lines.iter()
-      .filter(|(_index, (red, green, blue))|
-        { red <= &12u16 && green <= &13u16 && blue <= &14u16 }).collect();
+    let powers: Vec<_> = lines.iter()
+      .map(|(_index, (red, green, blue))|
+        { red * green * blue }).collect();
+    assert_eq!(100, powers.len());
 
-    assert_eq!(51, possible.len());
-
-    let sum: u16 = possible.iter()
-      .map(|(index, _)| index)
-      .sum();
-
-    assert_eq!(2593, sum);
+    let sum: u16 = powers.iter().sum();
+    assert_eq!(54699, sum);
   }
 }
