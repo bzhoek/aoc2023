@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod tests {
   use std::cmp::max;
+
   use nom::branch::alt;
   use nom::bytes::complete::tag;
   use nom::character::complete::{one_of, u16};
@@ -38,21 +39,14 @@ mod tests {
 
   #[test]
   fn test_parse_line() {
-    let prefix = tuple((tag("Game "), u16::<_, Error<_>>, tag(":")));
-    let color = alt((tag("blue"), tag("red"), tag("green")));
-    let quantity = tuple((tag(" "), u16::<_, Error<_>>, tag(" "), color));
-    let quantities = separated_list1(one_of(",;"), quantity);
-    let (_rest, ((_, index, _), quantities)) = tuple((prefix, quantities))("Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green").unwrap();
+    let (index, quantities) = parse_line("Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green");
     assert_eq!(1, index);
     assert_eq!(6, quantities.len())
   }
 
   #[test]
-  fn test_max_quantities() {
+  fn test_max_colors() {
     let (_, quantities) = parse_line("Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green");
-    let green: Vec<_> = quantities.iter()
-      .filter(|(_count, name)| { name.eq(&"green") }).collect();
-    assert_eq!(2, green.len());
     let (red, green, blue) = max_colors(&quantities);
     assert_eq!(4, red);
     assert_eq!(2, green);
@@ -84,7 +78,7 @@ mod tests {
     assert_eq!(100, lines.len());
 
     let possible: Vec<_> = lines.iter()
-      .filter(|(index, (red, green, blue))|
+      .filter(|(_index, (red, green, blue))|
         { red <= &12u16 && green <= &13u16 && blue <= &14u16 }).collect();
 
     assert_eq!(51, possible.len());
