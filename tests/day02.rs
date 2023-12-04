@@ -34,7 +34,7 @@ mod tests {
     let quantities = separated_list1(one_of(",;"), quantity);
     let (_, ((_, index, _), quantities)) = tuple((prefix, quantities))(str).unwrap();
     let quantities: Vec<_> = quantities.into_iter().map(|(_, count, _, color)| (count, color)).collect();
-    return (index, quantities);
+    (index, quantities)
   }
 
   #[test]
@@ -53,14 +53,14 @@ mod tests {
     assert_eq!(6, blue);
   }
 
-  fn max_colors(quantities: &Vec<(u16, &str)>) -> (u16, u16, u16) {
-    let red = max_color(&quantities, "red");
-    let green = max_color(&quantities, "green");
-    let blue = max_color(&quantities, "blue");
+  fn max_colors(quantities: &[(u16, &str)]) -> (u16, u16, u16) {
+    let red = max_color(quantities, "red");
+    let green = max_color(quantities, "green");
+    let blue = max_color(quantities, "blue");
     (red, green, blue)
   }
 
-  fn max_color(quantities: &Vec<(u16, &str)>, color: &str) -> u16 {
+  fn max_color(quantities: &[(u16, &str)], color: &str) -> u16 {
     quantities.iter()
       .filter(|(_count, name)| { name.eq(&color) })
       .fold(0, |acc, num| max(acc, num.0))
