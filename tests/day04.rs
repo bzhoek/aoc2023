@@ -28,14 +28,14 @@ mod tests {
 
   fn parse_line(input: &str) -> (u16, Vec<u16>, Vec<u16>) {
     println!("{}", input);
-    let (input, (_, index, _, _)) =
-      tuple((tag("Card "), complete::u16::<_, Error<_>>, tag(":"), multispace1))
+    let (input, (_, _, index, _, _)) =
+      tuple((tag("Card"), multispace1, complete::u16::<_, Error<_>>, tag(":"), multispace1))
         (input)
         .unwrap();
     let (_rest, (numbers, winning)) =
       separated_pair(
         separated_list1(multispace1, complete::u16::<_, Error<_>>),
-        tag(" | "),
+        tuple((tag(" |"), multispace1)),
         separated_list1(multispace1, complete::u16::<_, Error<_>>))
         (input).unwrap();
     (index, numbers, winning)
@@ -68,14 +68,32 @@ mod tests {
       .collect();
     assert_eq!(6, lines.len());
     let winnings: Vec<_> = lines.iter().map(|(_index, numbers, winning)| {
-      let numbers = numbers.into_iter().collect::<HashSet<_>>();
-      let winning = winning.into_iter().collect::<HashSet<_>>();
+      let numbers = numbers.iter().collect::<HashSet<_>>();
+      let winning = winning.iter().collect::<HashSet<_>>();
       let mut overlap: Vec<_> = numbers.intersection(&winning).collect();
       overlap.sort();
-      let score = if overlap.len() == 0 { 0 } else if overlap.len() == 1 { 1 } else { 2_u32.pow((overlap.len() - 1) as u32) };
-      score
+      if overlap.is_empty() { 0 } else if overlap.len() == 1 { 1 } else { 2_u32.pow((overlap.len() - 1) as u32) }
     }).collect();
     let sum: u32 = winnings.iter().sum();
     assert_eq!(13, sum);
+  }
+
+  #[test]
+  fn it_solves_part1() {
+    let input = include_str!("day04.input");
+    let lines: Vec<_> = input
+      .lines()
+      .map(parse_line)
+      .collect();
+    assert_eq!(199, lines.len());
+    let winnings: Vec<_> = lines.iter().map(|(_index, numbers, winning)| {
+      let numbers = numbers.iter().collect::<HashSet<_>>();
+      let winning = winning.iter().collect::<HashSet<_>>();
+      let mut overlap: Vec<_> = numbers.intersection(&winning).collect();
+      overlap.sort();
+      if overlap.is_empty() { 0 } else if overlap.len() == 1 { 1 } else { 2_u32.pow((overlap.len() - 1) as u32) }
+    }).collect();
+    let sum: u32 = winnings.iter().sum();
+    assert_eq!(23847, sum);
   }
 }
