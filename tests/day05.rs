@@ -11,7 +11,7 @@ mod tests {
   use nom::sequence::tuple;
 
   #[test]
-  fn test_parse_sample() {
+  fn test_solve_sample1() {
     let input = include_str!("day05.sample");
     let (input, (_, _, seeds)) = tuple((
       tag("seeds:"), multispace1, separated_list1(multispace1, complete::u64::<_, Error<_>>))
@@ -53,6 +53,38 @@ mod tests {
 
     let result = locations.iter().min().copied();
     assert_eq!(Some(35), result);
+  }
+
+  #[test]
+  fn test_solve_sample2() {
+    let input = include_str!("day05.sample");
+    let (input, (_, _, seeds)) = tuple((
+      tag("seeds:"), multispace1, separated_list1(multispace1, complete::u64::<_, Error<_>>))
+    )(input).unwrap();
+    let (input, seed_to_soil) = parse_ranges(input, "seed-to-soil map:");
+    let (input, soil_to_fertilizer) = parse_ranges(input, "soil-to-fertilizer map:");
+    let (input, fertilizer_to_water) = parse_ranges(input, "fertilizer-to-water map:");
+    let (input, water_to_light) = parse_ranges(input, "water-to-light map:");
+    let (input, light_to_temperature) = parse_ranges(input, "light-to-temperature map:");
+    let (input, temperature_to_humidity) = parse_ranges(input, "temperature-to-humidity map:");
+    let (_, humidity_to_location) = parse_ranges(input, "humidity-to-location map:");
+    let seeds: Vec<_> = seeds.chunks(2).map(|chunk| Range { start: chunk[0], end: chunk[0] + chunk[1] }).collect();
+    assert_eq!(2, seeds.len());
+
+    let result = seeds.iter().flat_map(|range| {
+      range.clone()
+        .map(|seed| map_through(seed, &*seed_to_soil))
+        .map(|seed| map_through(seed, &*soil_to_fertilizer))
+        .map(|seed| map_through(seed, &*fertilizer_to_water))
+        .map(|seed| map_through(seed, &*water_to_light))
+        .map(|seed| map_through(seed, &*light_to_temperature))
+        .map(|seed| map_through(seed, &*temperature_to_humidity))
+        .map(|seed| map_through(seed, &*humidity_to_location))
+        .min()
+    }).min();
+
+    println!("{:?}", result);
+    assert_eq!(Some(46), result);
   }
 
   #[test]
