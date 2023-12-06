@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod tests {
   use std::collections::HashSet;
+
   use nom::bytes::complete::tag;
   use nom::character::complete;
   use nom::character::complete::multispace1;
@@ -26,8 +27,7 @@ mod tests {
     assert_eq!(vec!(83, 86, 6, 31, 17, 9, 48, 53), winning);
   }
 
-  fn parse_line(input: &str) -> (u16, Vec<u16>, Vec<u16>) {
-    println!("{}", input);
+  fn parse_card(input: &str) -> (u16, Vec<u16>, Vec<u16>) {
     let (input, (_, _, index, _, _)) =
       tuple((tag("Card"), multispace1, complete::u16::<_, Error<_>>, tag(":"), multispace1))
         (input)
@@ -44,7 +44,7 @@ mod tests {
   #[test]
   fn test_parse_line() {
     let (index, numbers, winning) =
-      parse_line("Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53");
+      parse_card("Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53");
     assert_eq!(1, index);
     assert_eq!(5, numbers.len());
     assert_eq!(vec!(41, 48, 83, 86, 17), numbers);
@@ -60,37 +60,37 @@ mod tests {
   }
 
   #[test]
-  fn it_solves_sample() {
+  fn it_solves_sample1() {
     let input = include_str!("day04.sample");
-    let lines: Vec<_> = input
-      .lines()
-      .map(parse_line)
-      .collect();
-    assert_eq!(6, lines.len());
-    let winnings: Vec<_> = lines.iter().map(|(_index, numbers, winning)| {
+    let cards = parse_input(input);
+    assert_eq!(6, cards.len());
+    let winnings: Vec<_> = cards.iter().map(|(_index, numbers, winning)| {
       let numbers = numbers.iter().collect::<HashSet<_>>();
       let winning = winning.iter().collect::<HashSet<_>>();
-      let mut overlap: Vec<_> = numbers.intersection(&winning).collect();
-      overlap.sort();
+      let overlap: Vec<_> = numbers.intersection(&winning).collect();
       if overlap.is_empty() { 0 } else if overlap.len() == 1 { 1 } else { 2_u32.pow((overlap.len() - 1) as u32) }
     }).collect();
     let sum: u32 = winnings.iter().sum();
     assert_eq!(13, sum);
   }
 
+  fn parse_input(input: &str) -> Vec<(u16, Vec<u16>, Vec<u16>)> {
+    let lines: Vec<_> = input
+      .lines()
+      .map(parse_card)
+      .collect();
+    lines
+  }
+
   #[test]
   fn it_solves_part1() {
     let input = include_str!("day04.input");
-    let lines: Vec<_> = input
-      .lines()
-      .map(parse_line)
-      .collect();
-    assert_eq!(199, lines.len());
-    let winnings: Vec<_> = lines.iter().map(|(_index, numbers, winning)| {
+    let cards = parse_input(input);
+    assert_eq!(199, cards.len());
+    let winnings: Vec<_> = cards.iter().map(|(_index, numbers, winning)| {
       let numbers = numbers.iter().collect::<HashSet<_>>();
       let winning = winning.iter().collect::<HashSet<_>>();
-      let mut overlap: Vec<_> = numbers.intersection(&winning).collect();
-      overlap.sort();
+      let overlap: Vec<_> = numbers.intersection(&winning).collect();
       if overlap.is_empty() { 0 } else if overlap.len() == 1 { 1 } else { 2_u32.pow((overlap.len() - 1) as u32) }
     }).collect();
     let sum: u32 = winnings.iter().sum();
