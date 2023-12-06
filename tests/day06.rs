@@ -17,10 +17,12 @@ mod tests {
       ";
     let pairs = parse_input(input);
     assert_eq!(vec!((7, 9), (15, 40), (30, 200)), pairs);
+
     let (duration, record) = pairs.first().unwrap();
     let range = Range { start: 1, end: *duration };
     let result = range.into_iter().map(|hold| (duration - hold) * hold).collect::<Vec<_>>();
     assert_eq!(vec!(6, 10, 12, 12, 10, 6), result);
+
     let result = result.into_iter().filter(|time| time > record).collect::<Vec<_>>();
     assert_eq!(vec!(10, 12, 12, 10), result);
   }
@@ -32,29 +34,42 @@ mod tests {
       Distance:  9  40  200\n\
       ";
     let pairs = parse_input(input);
-    assert_eq!(vec!((7, 9), (15, 40), (30, 200)), pairs);
     let (duration, record) = pairs.first().unwrap();
-
     let solutions = find_solutions(duration, record);
     assert_eq!(vec!(10, 12, 12, 10), solutions);
+
     let solutions = pairs.iter().map(|(duration, record)| find_solutions(duration, record)).collect::<Vec<_>>();
     assert_eq!(&vec!(10, 12, 12, 10), solutions.first().unwrap());
+
     let solutions = solutions.iter().map(|solution| solution.len()).collect::<Vec<_>>();
     let solution = solutions.iter().product::<usize>();
     assert_eq!(288, solution);
   }
 
   #[test]
-  fn it_solves_part1() {
+  fn it_solves_sample2() {
     let input = "\
-      Time:        40     92     97     90\n\
-      Distance:   215   1064   1505   1100\n\
+      Time:      71530\n\
+      Distance:  940200\n\
       ";
     let pairs = parse_input(input);
-    let solutions = pairs.iter().map(|(duration, record)| find_solutions(duration, record)).collect::<Vec<_>>();
-    let solutions = solutions.iter().map(|solution| solution.len()).collect::<Vec<_>>();
-    let solution = solutions.iter().product::<usize>();
-    assert_eq!(6209190, solution);
+    let (duration, record) = pairs.first().unwrap();
+
+    let solutions = find_solutions(duration, record);
+    assert_eq!(71503, solutions.len());
+  }
+
+  #[test]
+  fn it_solves_part2() {
+    let input = "\
+      Time:        40929790\n\
+      Distance:   215106415051100\n\
+      ";
+    let pairs = parse_input(input);
+    let (duration, record) = pairs.first().unwrap();
+
+    let solutions = find_solutions(duration, record);
+    assert_eq!(28545089, solutions.len());
   }
 
   fn parse_input(input: &str) -> Vec<(u64, u64)> {
